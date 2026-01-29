@@ -13,7 +13,6 @@ from collections import deque
 from collections.abc import Iterator
 from dataclasses import dataclass
 from enum import Enum
-from functools import partial
 import math
 import operator
 
@@ -156,7 +155,7 @@ class FunctionExpression(Expression):
         "tan": math.tan,
         "atan": math.atan,
         "exp": math.exp,
-        "ln": partial(math.log, base=math.e),
+        "ln": math.log,
         "log": math.log10,
     }
 
@@ -261,7 +260,7 @@ def parse(expression: str) -> Expression:
 
 def eval_in_range(
     expression: str, start: float, stop: float, increment: float
-) -> list[float]:
+) -> tuple[list[float], list[float]]:
     if stop < start:
         raise ValueError("range must be provided in crescent order")
 
@@ -269,9 +268,12 @@ def eval_in_range(
 
     n = 1
     x = start
+    domain = []
     values = []
     while x < stop:
+        domain.append(x)
+        values.append(parsed_expression.eval(x))
         x += increment
         n += 1
-        values.append(parsed_expression.eval(x))
-    return values
+
+    return domain, values
