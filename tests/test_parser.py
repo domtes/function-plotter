@@ -1,3 +1,4 @@
+import math
 import pytest
 
 from plotter.parser import (
@@ -98,6 +99,21 @@ from plotter.parser import (
                 Token(type=TokenType.FLOAT, value="0.5"),
             ],
         ),
+        (
+            "pi * cos(2.4 * x) ^ e",
+            [
+                Token(type=TokenType.CONSTANT, value="pi"),
+                Token(type=TokenType.OPERATOR, value="*"),
+                Token(type=TokenType.FUNCTION, value="cos"),
+                Token(type=TokenType.SEPARATOR, value="("),
+                Token(type=TokenType.FLOAT, value="2.4"),
+                Token(type=TokenType.OPERATOR, value="*"),
+                Token(type=TokenType.VARIABLE, value="x"),
+                Token(type=TokenType.SEPARATOR, value=")"),
+                Token(type=TokenType.OPERATOR, value="^"),
+                Token(type=TokenType.CONSTANT, value="e"),
+            ],
+        ),
     ],
 )
 def test_lexer(expression, expected):
@@ -108,6 +124,13 @@ def test_lexer(expression, expected):
     "expression, expected",
     argvalues=[
         ("3.14", Atom(Token(type=TokenType.FLOAT, value="3.14"))),
+        ("pi", Atom(Token(type=TokenType.CONSTANT, value="pi"))),
+        (
+            "exp(e)",
+            FunctionExpression(
+                function="exp", argument=Atom(Token(type=TokenType.CONSTANT, value="e"))
+            ),
+        ),
         (
             "2 + 2",
             InfixExpression(
@@ -246,6 +269,8 @@ def test_unary_minus(expression, expected):
         ("(-2)^3", 0, -8),  # (-2)^3 = -8
         ("-2^2", 0, -4),  # -(2^2) = -4
         ("(-2)^2", 0, 4),  # (-2)^2 = 4
+        ("pi", 0, math.pi),
+        ("e", 0, math.e),
     ],
 )
 def test_unary_minus_eval(expression, x, expected):

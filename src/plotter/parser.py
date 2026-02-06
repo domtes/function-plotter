@@ -27,6 +27,7 @@ class TokenType(Enum):
     SEPARATOR = 2
     FLOAT = 3
     FUNCTION = 4
+    CONSTANT = 5
 
 
 # The token can optionally capture a string value.
@@ -43,6 +44,7 @@ operators: set[str] = {"+", "-", "*", "/", "^"}
 functions: set[str] = {"abs", "cos", "sin", "tan", "atan", "exp", "ln", "log"}
 separators: set[str] = {"(", ")"}
 variables: set[str] = {"x"}
+constants: set[str] = {"e", "pi"}
 
 
 # The lexer is a generator function that yields token as it scans the input string
@@ -75,13 +77,18 @@ def lex(input: str) -> Iterator[Token]:
             i += 1
             continue
 
-        # functions
+        # functions and constants
         if char.isalpha():
             j = i + 1
             while j < len(input) and input[j].isalpha():
                 j += 1
 
             name = input[i:j]
+            if name in constants:
+                yield Token(type=TokenType.CONSTANT, value=name)
+                i = j
+                continue
+
             if name not in functions:
                 yield Token(
                     type=TokenType.ERROR, value=f"unknown function name '{name}'"
@@ -134,12 +141,18 @@ class Expression(ABC):
 class Atom(Expression):
     token: Token
 
+    _constants = {
+        "pi": math.pi,
+        "e": math.e,
+    }
+
     def eval(self, x: float) -> float:
         if self.token.type == TokenType.VARIABLE:
             return x
         if self.token.type == TokenType.FLOAT:
             return float(self.token.value or 0)
-
+        if self.token.type == TokenType.CONSTANT:
+            return self._constants[self.token.value]
         return 0.0
 
 
