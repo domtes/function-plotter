@@ -255,7 +255,7 @@ def _neg(operand):
         ),
     ],
 )
-def test_unary_minus(expression, expected):
+def test_unary_minus_parse(expression, expected):
     assert parse(expression) == expected
 
 
@@ -271,7 +271,12 @@ def test_unary_minus(expression, expected):
         ("(-2)^2", 0, 4),  # (-2)^2 = 4
         ("pi", 0, math.pi),
         ("e", 0, math.e),
+        ("abs(-100)", 0, 100),
+        ("abs(pi)", 0, math.pi),
+        ("abs(x)", 0, 0),
+        ("abs(x)", -1.0, 1.0),
+        ("abs(cos(x))", 0, 1.0),
     ],
 )
-def test_unary_minus_eval(expression, x, expected):
+def test_eval(expression, x, expected):
     assert parse(expression).eval(x) == expected

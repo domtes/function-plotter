@@ -176,7 +176,7 @@ class FunctionExpression(Expression):
         func = self._funcs.get(self.function)
         if not func:
             raise ValueError(f"Unknown function {self.function}")
-        return func(x)
+        return func(self.argument.eval(x))
 
 
 @dataclass
