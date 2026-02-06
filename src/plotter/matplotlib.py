@@ -11,6 +11,9 @@ def plot_expression(
 ):
     fig, ax = plt.subplots()
     domain, values = eval_in_range(expression, start, stop, increment)
+    ax.grid(
+        visible=True, which="both", color="lightgray", linestyle="--", linewidth=0.5
+    )
     ax.plot(domain, values)
 
     ax.legend((expression,))
